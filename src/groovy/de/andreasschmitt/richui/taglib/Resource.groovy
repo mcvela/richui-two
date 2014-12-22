@@ -1,40 +1,24 @@
-/**
- * 
- */
 package de.andreasschmitt.richui.taglib
 
+import groovy.transform.CompileStatic
 import groovy.xml.MarkupBuilder
 
 /**
  * @author Andreas Schmitt
- *
  */
-public class Resource {
+@CompileStatic
+class Resource {
 
 	String name
-	StringWriter writer
-	MarkupBuilder builder
-	
-	public Resource(){
-		writer = new StringWriter()
-		builder = new MarkupBuilder(writer)
-	}
-	
-	StringWriter getWriter(){
-		return writer
-	}
-	
-	MarkupBuilder getBuilder(){
-		return builder
-	}
-	
-	String getData(){
+	StringWriter writer = new StringWriter()
+	MarkupBuilder builder = new MarkupBuilder(writer)
+
+	String getData() {
 		writer.flush()
-		return writer.toString()
+		writer.toString()
 	}
-	
-	String toString(){
+
+	String toString() {
 		name
 	}
-	
 }

@@ -1,26 +1,13 @@
 package de.andreasschmitt.richui.image
 
-import java.lang.Exception
+import groovy.transform.CompileStatic
 
-/*
+/**
  * @author Andreas Schmitt
  */
-class ImageCreationException extends Exception {
-
-	public ImageCreationException() {
-		super()
+@CompileStatic
+class ImageCreationException extends RuntimeException {
+	ImageCreationException(String message, Throwable cause) {
+		super(message, cause)
 	}
-
-	public ImageCreationException(String arg0, Throwable arg1) {
-		super(arg0, arg1)
-	}
-
-	public ImageCreationException(String arg0) {
-		super(arg0)
-	}
-
-	public ImageCreationException(Throwable arg0) {
-		super(arg0)
-	}
-
 }

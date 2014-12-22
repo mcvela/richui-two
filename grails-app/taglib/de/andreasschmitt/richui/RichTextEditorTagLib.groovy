@@ -1,45 +1,45 @@
 package de.andreasschmitt.richui
 
-import de.andreasschmitt.richui.taglib.renderer.*
+import de.andreasschmitt.richui.taglib.renderer.RenderException
+import de.andreasschmitt.richui.taglib.renderer.Renderer
 
-/*
-*
-* @author Andreas Schmitt
-*/
+/**
+ * @author Andreas Schmitt
+ */
 class RichTextEditorTagLib {
+
 	static namespace = "richui"
-		
+
 	Renderer richTextEditorRenderer
-			
+
 	def richTextEditor = {attrs ->
-		if(attrs?.name){
-			
-			if(!attrs.id){
+		if (attrs?.name) {
+
+			if (!attrs.id) {
 				attrs.id = attrs.name
 			}
-			
-			if(!attrs?.height){
+
+			if (!attrs?.height) {
 				attrs.height = "200"
 			}
-			
-			if(!attrs?.width){
+
+			if (!attrs?.width) {
 				attrs.width = "300"
 			}
-			
-			if(!attrs?.value){
+
+			if (!attrs?.value) {
 				attrs.value = ""
-			}			
-			
-			//Render output
+			}
+
 			try {
 				out << richTextEditorRenderer.renderTag(attrs)
 			}
-			catch(RenderException e){
-				log.error(e)
+			catch (RenderException e) {
+				log.error e.message, e
 			}
 		}
 		else {
-			throw new Exception("Attribute name is required")
+			throwTagError("Attribute name is required")
 		}
 	}
 }

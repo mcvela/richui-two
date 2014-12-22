@@ -1,78 +1,50 @@
-import org.apache.commons.logging.LogFactory
-import org.springframework.web.context.support.*
-import org.springframework.core.io.*
-import org.springframework.core.io.support.*
-// import org.codehaus.groovy.grails.plugins.PluginManagerHolder // DEPRECATED
-// import org.codehaus.groovy.grails.commons.ConfigurationHolder // DEPRECATED
-import grails.util.Holders
-/*
-*
-* @author Andreas Schmitt / Miguel Angel Alacio
-*/
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 class RichuiTwoGrailsPlugin {
-	
-	def version = 0.8
+
+	Logger log = LoggerFactory.getLogger(getClass())
+
+	def version = '0.8'
 	def grailsVersion = "2.3 > *"
-    def author = 'Miguel Angel Alacio'
-    def authorEmail = 'mcvela@hotmail.com'
-    def title = 'Provides a set of AJAX components'
-    def description = '''
-Provides a set of AJAX components
-'''
-    def documentation = 'http://grails.org/RichUI+Plugin'
-	
-	def dependsOn = [:]
-	
+	def title = 'RichUI Plugin'
+	def description = 'Provides a set of AJAX components'
+	def documentation = 'http://grails.org/plugin/richui'
+	def license = 'APACHE'
+	def developers = [
+		[name: 'Miguel Angel Alacio', email: 'mcvela@hotmail.com'],
+		[name: 'Andreas Schmitt']
+	]
+	def issueManagement = [system: 'GITHUB', url: 'https://github.com/mcvela/richui-two/issues']
+	def scm = [url: 'https://github.com/mcvela/richui-two']
+
 	def doWithSpring = {
-		//This is only necessary here, because later on log is injected by Spring
-		def log = LogFactory.getLog(RichuiTwoGrailsPlugin)
-		 
-		try {				
+		try {
 			RichuiConfig.renderers.each { key, value ->
-		  		try {
-		  			//Override default renderer configuration 
-		  			if(Holders.config?.richui."${key}"){
-		  				value = Holders.config.richui."${key}"
-		  			}
-		  			
-		      		Class clazz = Class.forName(value, true, new GroovyClassLoader())
-		      			
-		      		//Add to spring
-		      		"$key"(clazz)	
-		  		}
-		  		catch(ClassNotFoundException e){
-		  			log.error("Couldn't find class: ${value}", e)
-		  		}
-			}			
+				try {
+					//Override default renderer configuration
+					if (application.config.richui."$key") {
+						value = application.config.richui."$key"
+					}
+
+					Class clazz = Class.forName(value, true, Thread.currentThread().contextClassLoader)
+
+					//Add to spring
+					"$key"(clazz) { bean ->
+						bean.autowire = 'byName'
+					}
+				}
+				catch (ClassNotFoundException e) {
+					log.error("Couldn't find class: $value", e)
+				}
+			}
 		}
-		catch(Exception e){
-			log.error("Error initializing RichUI Two plugin", e)
+		catch (e) {
+			log.error("Error initializing RichUI plugin", e)
 		}
-		catch(Error e){
+		catch (Error e) {
 			//Strange error which happens when using generate-all and hibernate.cfg
-			log.error("Error initializing RichUI Two plugin")
+			log.error("Error initializing RichUI plugin")
 		}
-	}   
-	
-	def doWithApplicationContext = { applicationContext ->
-		// TODO Implement post initialization spring config (optional)		
-	}
-	
-	def doWithWebDescriptor = { xml ->
-		// TODO Implement additions to web.xml (optional)
-	}	                                      
-	
-	def doWithDynamicMethods = { ctx ->
-		// TODO Implement additions to web.xml (optional)
-	}	
-	
-	def onChange = { event ->
-		// TODO Implement code that is executed when this class plugin class is changed  
-		// the event contains: event.application and event.applicationContext objects
-	}                                                                                  
-	
-	def onApplicationChange = { event ->
-		// TODO Implement code that is executed when any class in a GrailsApplication changes
-		// the event contain: event.source, event.application and event.applicationContext objects
 	}
 }

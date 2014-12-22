@@ -1,76 +1,75 @@
 package de.andreasschmitt.richui
 
-import de.andreasschmitt.richui.taglib.renderer.*
+import de.andreasschmitt.richui.taglib.renderer.RenderException
+import de.andreasschmitt.richui.taglib.renderer.Renderer
 
-/*
-*
-* @author Andreas Schmitt
-*/
+/**
+ * @author Andreas Schmitt
+ */
 class RatingTagLib {
-	
+
 	static namespace = "richui"
-	
+
 	Renderer ratingRenderer
-	
+
 	def rating = {attrs ->
-		
-		if(!attrs?.action){
+
+		if (!attrs?.action) {
 			attrs.action = actionName
 		}
-		
-		if(!attrs?.controller){
+
+		if (!attrs?.controller) {
 			attrs.controller = controllerName
 		}
-	
+
 		attrs.link = "${remoteLink(class: ':class:', title: ':title:', controller: attrs.controller, action: attrs.action, id: attrs?.id, update: 'update', params:[rating: ':rating:'], 'number')}"
-		
+
 		//Default static behaviour
-		if(!attrs?.dynamic){
+		if (!attrs?.dynamic) {
 			attrs.dynamic = false
 		}
 		else {
-			attrs.dynamic = attrs.dynamic == "true" ? true : false
+			attrs.dynamic = attrs.dynamic == "true"
 		}
-		
-		if(attrs.dynamic && (!attrs?.action || !attrs?.controller)){
-			throw new Exception("Attributes action is required when dynamic is true")
+
+		if (attrs.dynamic && (!attrs?.action || !attrs?.controller)) {
+			throwTagError("Attributes action is required when dynamic is true")
 		}
-		
+
 		//Default don't show current rating text
-		if(!attrs?.showCurrent){
+		if (!attrs?.showCurrent) {
 			attrs.showCurrent = false
 		}
 		else {
-			attrs.showCurrent = attrs.showCurrent == "true" ? true : false
+			attrs.showCurrent = attrs.showCurrent == "true"
 		}
-		
+
 		//Default 5 units eg. stars
-		if(!attrs?.units){
+		if (!attrs?.units) {
 			attrs.units = 5
 		}
 		else {
 			attrs.units = Integer.parseInt(attrs.units)
 		}
-		
+
 		//Default no rating
-		if(!attrs?.rating){
+		if (!attrs?.rating) {
 			attrs.rating = 0
 		}
 		else {
 			try {
-				attrs.rating = Double.parseDouble("${attrs.rating}")	
+				attrs.rating = Double.parseDouble("${attrs.rating}")
 			}
-			catch(NumberFormatException e){
+			catch (NumberFormatException e) {
 				attrs.rating = 0
 			}
 		}
-		
-		//Render output
+
 		try {
 			out << ratingRenderer.renderTag(attrs)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
 }
