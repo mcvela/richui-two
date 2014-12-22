@@ -1,31 +1,30 @@
 package de.andreasschmitt.richui
 
-import javax.media.jai.JAI
 import java.awt.image.RenderedImage
+import javax.media.jai.JAI
 import de.andreasschmitt.richui.image.ImageCreationException
 
-/*
+/**
  * @author Andreas Schmitt
  */
 class FontImageController {
-	
+
 	def fontImageService
-	
-	def image = {
+
+	def image() {
 		try {
-			params.size = new Integer(params?.size)			
-			RenderedImage image = fontImageService.createImage(params.text, params.fontName, params.style, params.size, params.color)
-			
+			int size = params.int('size')
+			RenderedImage image = fontImageService.createImage(params.text, params.fontName, params.style, size, params.color)
+
 			//PNG
-		    response.contentType = "image/png"
-			def outputStream = response.outputStream
-			JAI.create("encode", image, outputStream, "PNG", null)	
+			response.contentType = "image/png"
+			JAI.create "encode", image, response.outputStream, "PNG", null
 		}
-		catch(ImageCreationException e){
-			log.error(e)
+		catch (ImageCreationException e) {
+			log.error e.message, e
 		}
-		catch(Exception e){
-			log.error(e)
+		catch (e) {
+			log.error e.message, e
 		}
 	}
 }

@@ -1,36 +1,33 @@
 package de.andreasschmitt.richui
 
-import de.andreasschmitt.richui.taglib.renderer.*
-/*
-*
-* @author Andreas Schmitt
-*/
+import de.andreasschmitt.richui.taglib.renderer.RenderException
+import de.andreasschmitt.richui.taglib.renderer.Renderer
+
+/**
+ * @author Andreas Schmitt
+ */
 class AccordionTagLib {
-	
+
 	static namespace = "richui"
-		
+
 	Renderer accordionRenderer
 	Renderer accordionItemRenderer
-		
+
 	def accordion = {attrs, body ->
-						
-		//Render output
 		try {
 			out << accordionRenderer.renderTag(attrs, body)
 		}
-		catch(RenderException e){
-				log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def accordionItem = {attrs, body ->
-	
-		//Render output
 		try {
 			out << accordionItemRenderer.renderTag(attrs, body)
 		}
-		catch(RenderException e){
-				log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
 }

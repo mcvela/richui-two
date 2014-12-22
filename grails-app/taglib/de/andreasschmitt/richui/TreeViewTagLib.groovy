@@ -1,35 +1,31 @@
 package de.andreasschmitt.richui
 
-import groovy.util.XmlSlurper
-import de.andreasschmitt.richui.taglib.renderer.*
+import de.andreasschmitt.richui.taglib.renderer.RenderException
+import de.andreasschmitt.richui.taglib.renderer.Renderer
 
-/*
-*
-* @author Andreas Schmitt
-*/
+/**
+ * @author Andreas Schmitt
+ */
 class TreeViewTagLib {
-	
+
 	static namespace = "richui"
-	
+
 	Renderer treeViewRenderer
-	
-	def treeView = {attrs ->	
+
+	def treeView = {attrs ->
 		try {
 			attrs.xml = new XmlSlurper().parseText(attrs.xml)
 		}
-		catch(Exception e){
+		catch (e) {
 			log.error("Error parsing xml", e)
-			return ""
+			return
 		}
-	
-		//Render output
+
 		try {
 			out << treeViewRenderer.renderTag(attrs)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
-
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-
 }

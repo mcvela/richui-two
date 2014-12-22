@@ -1,20 +1,21 @@
 package de.andreasschmitt.richui
 
-import de.andreasschmitt.richui.taglib.renderer.*
-import de.andreasschmitt.richui.taglib.Resource
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 
-/*
-*
-* @author Andreas Schmitt
-*/
+import de.andreasschmitt.richui.taglib.Resource
+import de.andreasschmitt.richui.taglib.renderer.RenderException
+import de.andreasschmitt.richui.taglib.renderer.Renderer
+
+/**
+ * @author Andreas Schmitt
+ */
 class RichUIResourceTagLib implements ApplicationContextAware {
-	
+
 	static namespace = "resource"
-	
-	ApplicationContext context
-	
+
+	ApplicationContext applicationContext
+
 	Renderer accordionRenderer
 	Renderer autoCompleteRenderer
 	Renderer dateChooserRenderer
@@ -40,304 +41,277 @@ class RichUIResourceTagLib implements ApplicationContextAware {
 	Renderer yahooMapsRenderer
 	Renderer microsoftVirtualEarthRenderer
 	Renderer lightBoxRenderer
-	
+
 	def include = { attrs ->
-		if(attrs?.components){
+		if (attrs?.components) {
 			// Map of resources already included
 			Map renderedResources = [:]
-			
-			if(attrs.components instanceof String){
+
+			if (attrs.components instanceof String) {
 				attrs.components = attrs.components.split(",")
 			}
-			
+
 			// Iterate over all components specified to include the required
 			// JavaScript and CSS files
 			attrs.components.each { component ->
-			    try {
-			    	String componentName = component.trim()
-			    	
-			    	// Map component specific attributes
-			    	Map componentAttributes = [:]
-			    	if(attrs?.containsKey(componentName)){
-			    		componentAttributes = attrs[componentName]
-			    	}
-			    	
-			    	// Get renderer bean for component
-			    	Renderer componentRenderer = context?.getBean("${componentName}Renderer")
-			    	
-			    	// Allow map renderer to be specified via type attribute
-			    	if(componentName == "map" && componentAttributes?.type){
-			    		componentRenderer = context?.getBean("${componentAttributes.type}Renderer")
-			    	}
-			    			
-			    	// Get resources for renderer
-			    	List<Resource> resources = componentRenderer.getResources(attrs + componentAttributes, request?.contextPath)
-				
-			    	resources.each { Resource resource ->
+				try {
+					String componentName = component.trim()
+
+					// Map component specific attributes
+					Map componentAttributes = [:]
+					if (attrs?.containsKey(componentName)) {
+						componentAttributes = attrs[componentName]
+					}
+
+					// Get renderer bean for component
+					Renderer componentRenderer = applicationContext?.getBean("${componentName}Renderer")
+
+					// Allow map renderer to be specified via type attribute
+					if (componentName == "map" && componentAttributes?.type) {
+						componentRenderer = applicationContext?.getBean("${componentAttributes.type}Renderer")
+					}
+
+					// Get resources for renderer
+					List<Resource> resources = componentRenderer.getResources(attrs + componentAttributes, request?.contextPath)
+
+					resources.each { Resource resource ->
 						// Add resource only if hasn't already been rendered
-						if(resource?.name && !renderedResources.containsKey(resource.name)){
+						if (resource?.name && !renderedResources.containsKey(resource.name)) {
 							try {
 								// Render resource
 								out << resource.data
-							
+
 								// Add resource to rendered resources
-								renderedResources[resource.name] = true	
+								renderedResources[resource.name] = true
 							}
-							catch(RenderException e){
-								log.error(e)
+							catch (RenderException e) {
+								log.error e.message, e
 							}
 						}
-			    	}
-			    }
-			    catch(Exception e){
-			    	log.error(e)
-			    }
+					}
+				}
+				catch (e) {
+					log.error e.message, e
+				}
 			}
 		}
 	}
-	
-	def autoComplete = { attrs ->	
-		//Render output
+
+	def autoComplete = { attrs ->
 		try {
 			out << autoCompleteRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def calendarMonthView = { attrs ->
-		//Render output
 		try {
 			out << calendarMonthViewRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def calendarDayView = { attrs ->
-		//Render output
 		try {
 			out << calendarDayViewRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def calendarWeekView = { attrs ->
-		//Render output
 		try {
 			out << calendarWeekViewRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def carousel = { attrs ->
-		//Render output
 		try {
 			out << carouselRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def dateChooser = {	attrs ->
-		//Render output
 		try {
 			out << dateChooserRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
-	def map = { attrs ->	
-		//Render output
+
+	def map = { attrs ->
 		try {
-			if(attrs?.type){
-				switch(attrs.type.toLowerCase()){
+			if (attrs?.type) {
+				switch(attrs.type.toLowerCase()) {
 					case "yahoomaps":
 						out << yahooMapsRenderer.renderResources(attrs, request?.contextPath)
 						break
-						
+
 					case "microsoftvirtualearth":
 						out << microsoftVirtualEarthRenderer.renderResources(attrs, request?.contextPath)
 						break
-						
+
 					case "googlemaps":
 						out << googleMapsRenderer.renderResources(attrs, request?.contextPath)
-						break	
-						
+						break
+
 					default:
-						out << mapRenderer.renderResources(attrs, request?.contextPath)	
+						out << mapRenderer.renderResources(attrs, request?.contextPath)
 				}
 			}
 			else {
 				out << mapRenderer.renderResources(attrs, request?.contextPath)
 			}
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def rating = { attrs ->
-		//Render output
 		try {
 			out << ratingRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
 
 	def lightBox = { attrs ->
-		//Render output
 		try {
 			out << lightBoxRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def tabView = { attrs ->
-		//Render output
 		try {
 			out << tabViewRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def tagCloud = { attrs ->
-		//Render output
 		try {
 			out << tagCloudRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}		
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def timeline = { attrs ->
-		//Render output
 		try {
 			out << timelineRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}		
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def tooltip = { attrs ->
-		//Render output
 		try {
 			out << tooltipRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}		
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
-	def treeView = { attrs ->	
-		//Render output
+
+	def treeView = { attrs ->
 		try {
 			out << treeViewRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
+		catch (RenderException e) {
+			log.error e.message, e
 		}
 	}
-	
+
 	def reflectionImage = { attrs ->
-		//Render output
 		try {
 			out << reflectionImageRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def richTextEditor = { attrs ->
-		//Render output
 		try {
 			out << richTextEditorRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def portlet = { attrs ->
-		//Render output
 		try {
 			out << portletRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def portletView = { attrs ->
-		//Render output
 		try {
 			out << portletViewRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def flow = { attrs ->
-		//Render output
 		try {
 			out << flowRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def accordion = { attrs ->
-		//Render output
 		try {
 			out << accordionRenderer.renderResources(attrs, request?.contextPath)
 		}
-		catch(RenderException e){
-			log.error(e)
-		}	
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
-	 def checkedTreeView = { attrs ->
-	 	//Render output
-	    try {
-	    	out << checkedTreeViewRenderer.renderResources(attrs, request?.contextPath)
-	    }
-	    catch(RenderException e){
-	    	log.error(e)
-	    }
+
+	def checkedTreeView = { attrs ->
+		try {
+			out << checkedTreeViewRenderer.renderResources(attrs, request?.contextPath)
+		}
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
+
 	def slider = { attrs ->
-	 	//Render output
-	    try {
-	    	out << sliderRenderer.renderResources(attrs, request?.contextPath)
-	    }
-	    catch(RenderException e){
-	    	log.error(e)
-	    }
+		try {
+			out << sliderRenderer.renderResources(attrs, request?.contextPath)
+		}
+		catch (RenderException e) {
+			log.error e.message, e
+		}
 	}
-	
-	public void setApplicationContext(ApplicationContext context){
-		this.context = context
-	}
-	
 }

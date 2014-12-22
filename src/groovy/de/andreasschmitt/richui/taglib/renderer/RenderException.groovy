@@ -1,23 +1,18 @@
 package de.andreasschmitt.richui.taglib.renderer
 
-/*
+import groovy.transform.CompileStatic
+
+/**
  * @author Andreas Schmitt
  */
-class RenderException extends Exception {
-	
-	public RenderException(){
-		super()
-	}
-	
-	public RenderException(String message){
+@CompileStatic
+class RenderException extends RuntimeException {
+
+	RenderException(String message) {
 		super(message)
 	}
-	
-	public RenderException(Throwable throwable){
-		super(throwable)
-	}
-	
-	public RenderException(String message, Throwable throwable){
-		super(message, throwable)
+
+	RenderException(String message, Throwable cause) {
+		super(message, cause)
 	}
 }

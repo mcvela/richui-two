@@ -1,64 +1,58 @@
 package de.andreasschmitt.richui
 
-import de.andreasschmitt.richui.taglib.renderer.*
+import de.andreasschmitt.richui.taglib.renderer.Renderer
 
-/*
-*
-* @author Andreas Schmitt
-*/
+/**
+ * @author Andreas Schmitt
+ */
 class CalendarWeekViewTagLib {
-	
+
 	static namespace = "richui"
-		
+
 	Renderer calendarWeekViewRenderer
-	def messageSource	
-	
+	def messageSource
+
 	def calendarWeekView = {attrs ->
-	
-		if(!attrs?.action){
+
+		if (!attrs?.action) {
 			attrs.action = actionName
 		}
-		
-		if(!attrs?.controller){
+
+		if (!attrs?.controller) {
 			attrs.controller = controllerName
 		}
-		
-		if(!attrs?.dayController){
+
+		if (!attrs?.dayController) {
 			attrs.dayController = controllerName
 		}
-		
-		if(!attrs?.weekController){
+
+		if (!attrs?.weekController) {
 			attrs.weekController = controllerName
 		}
-		
-		if(attrs?.dayAction){
+
+		if (attrs?.dayAction) {
 			attrs.dayUrl = "${createLink(controller: attrs.dayController, action: attrs.dayAction)}"
 		}
-		if(attrs?.createLink && attrs?.createLink == "true"){
+		if (attrs?.createLink && attrs?.createLink == "true") {
 			attrs.itemUrl = "${createLink(controller: attrs.controller, action: attrs.action, id: 'itemId')}"
 		}
-		
+
 		try {
 			attrs.time = messageSource.getMessage("default.time", null, request?.locale)
 			attrs.weekDays = [:]
-			attrs.weekDays.monday = messageSource.getMessage("default.monday", null, request?.locale)
-			attrs.weekDays.tuesday = messageSource.getMessage("default.tuesday", null, request?.locale)
-			attrs.weekDays.wednesday = messageSource.getMessage("default.wednesday", null, request?.locale)
-			attrs.weekDays.thursday = messageSource.getMessage("default.thursday", null, request?.locale)
-			attrs.weekDays.friday = messageSource.getMessage("default.friday", null, request?.locale)
-			attrs.weekDays.saturday = messageSource.getMessage("default.saturday", null, request?.locale)
-			attrs.weekDays.sunday = messageSource.getMessage("default.sunday", null, request?.locale)	
+			['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].each { String day ->
+				attrs.weekDays[day] = messageSource.getMessage("default." + day, null, request?.locale)
+			}
 		}
-		catch(Exception e){
+		catch (e) {
 			log.error("Error retrieving messages", e)
 		}
-		
-		//Render output
+
 		//try {
 			out << calendarWeekViewRenderer.renderTag(attrs)
 		//}
-		//catch(RenderException e){
-		//	log.error(e)
+		//catch (RenderException e) {
+		//	log.error e.message, e
 		//}
 	}
 }
