@@ -1,0 +1,8 @@
+*.iws
+*.log
+/.settings
+/plugin.xml
+/target
+/web-app/WEB-INF
+/grails-richui-*.zip
+/grails-richui-*.zip.sha1
