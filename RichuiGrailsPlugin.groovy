@@ -1,7 +1,7 @@
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class RichuiTwoGrailsPlugin {
+class RichuiGrailsPlugin {
 
 	Logger log = LoggerFactory.getLogger(getClass())
 

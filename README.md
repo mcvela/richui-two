@@ -1,5 +1,5 @@
-Richui-Two
-=========
+Richui
+======
 
 Version of RichUI Grails plugin for Grails 2.3.4
 
